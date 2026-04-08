@@ -72,7 +72,7 @@ src/
 ## Setup
 
 ```bash
-npm install
+bun install
 ```
 
 ## Configuration
@@ -86,13 +86,32 @@ export SCOUT_API_KEY=your_api_key_here
 ## Running
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 ## Testing
 
 ```bash
-npm test
+bun test
+```
+
+## Build
+
+```bash
+bun run build
+```
+
+## Docker
+
+```bash
+docker build -t scout-os-mcp-server .
+docker run -p 3000:3000 -e SCOUT_API_KEY=your_api_key_here scout-os-mcp-server
+```
+
+Health check:
+
+```bash
+curl http://localhost:3000/health
 ```
 
 ## Deployment (Scout Live)
@@ -103,19 +122,12 @@ The server deploys to [Scout Live](https://scoutos.live) — a container deploym
 
 1. **Get a Scout Live API key** from [scoutos.live/dashboard](https://scoutos.live/dashboard/)
 
-2. **Package the app as a tarball:**
+2. **Deploy with the helper script:**
    ```bash
-   tar -czf app.tar.gz Dockerfile package.json src/
+   SCOUT_LIVE_API_KEY=your_live_key ./scripts/deploy.sh mcp-scout
    ```
 
-3. **Deploy:**
-   ```bash
-   curl -X POST "https://scoutos.live/api/build?subdomain=mcp-scout" \
-     -H "Authorization: Bearer $SCOUT_LIVE_API_KEY" \
-     --data-binary @app.tar.gz
-   ```
-
-4. **The server is live** at `https://mcp-scout.scoutos.live`
+3. **The server is live** at `https://mcp-scout.scoutos.live`
 
 ### Environment Configuration
 
