@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { ScoutApiClient } from "./api-client.js";
+import { registerAgentsTool, registerAgentSessionsTool } from "./tools/agents.js";
 import { registerWorkflowsTool } from "./tools/workflows.js";
 
 export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT_API_KEY ?? "")) {
@@ -49,6 +50,12 @@ export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT
 
   const workflowsTool = registerWorkflowsTool(apiClient);
   server.registerTool(workflowsTool.name, workflowsTool.config, workflowsTool.handler);
+
+  const agentsTool = registerAgentsTool(apiClient);
+  server.registerTool(agentsTool.name, agentsTool.config, agentsTool.handler);
+
+  const agentSessionsTool = registerAgentSessionsTool(apiClient);
+  server.registerTool(agentSessionsTool.name, agentSessionsTool.config, agentSessionsTool.handler);
 
   return server;
 }

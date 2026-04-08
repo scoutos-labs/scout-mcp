@@ -83,9 +83,9 @@ describe("MCP server", () => {
 
     await client.connect(transport);
 
-    await expect(client.listTools()).resolves.toMatchObject({
-      tools: [expect.objectContaining({ name: "scout_workflows" })]
-    });
+    const result = await client.listTools();
+
+    expect(result.tools.some((tool) => tool.name === "scout_workflows")).toBe(true);
 
     await client.close();
   });
