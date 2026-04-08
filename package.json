@@ -1,6 +1,6 @@
 {
   "name": "scoutos-mcp",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.2",
   "description": "Local MCP server for the Scout OS API",
   "license": "MIT",
   "type": "module",
