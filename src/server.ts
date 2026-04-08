@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
 
-import { ScoutApiClient } from "./api-client.js";
+import { ScoutApiClient, ScoutApiError } from "./api-client.js";
 import { registerResources } from "./resources/index.js";
 import { registerAgentsTool, registerAgentSessionsTool } from "./tools/agents.js";
 import { registerCollectionsTool } from "./tools/collections.js";
@@ -59,46 +60,70 @@ export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT
     )
     .disable();
 
-  const workflowsTool = registerWorkflowsTool(apiClient);
-  server.registerTool(workflowsTool.name, workflowsTool.config, workflowsTool.handler);
-
-  const agentsTool = registerAgentsTool(apiClient);
-  server.registerTool(agentsTool.name, agentsTool.config, agentsTool.handler);
-
-  const agentSessionsTool = registerAgentSessionsTool(apiClient);
-  server.registerTool(agentSessionsTool.name, agentSessionsTool.config, agentSessionsTool.handler);
-
-  const collectionsTool = registerCollectionsTool(apiClient);
-  server.registerTool(collectionsTool.name, collectionsTool.config, collectionsTool.handler);
-
-  const tablesTool = registerTablesTool(apiClient);
-  server.registerTool(tablesTool.name, tablesTool.config, tablesTool.handler);
-
-  const documentsTool = registerDocumentsTool(apiClient);
-  server.registerTool(documentsTool.name, documentsTool.config, documentsTool.handler);
-
-  const syncsTool = registerSyncsTool(apiClient);
-  server.registerTool(syncsTool.name, syncsTool.config, syncsTool.handler);
-
-  const triggersTool = registerTriggersTool(apiClient);
-  server.registerTool(triggersTool.name, triggersTool.config, triggersTool.handler);
-
-  const copilotsTool = registerCopilotsTool(apiClient);
-  server.registerTool(copilotsTool.name, copilotsTool.config, copilotsTool.handler);
-
-  const logsTool = registerLogsTool(apiClient);
-  server.registerTool(logsTool.name, logsTool.config, logsTool.handler);
-
-  const integrationsTool = registerIntegrationsTool(apiClient);
-  server.registerTool(integrationsTool.name, integrationsTool.config, integrationsTool.handler);
-
-  const driveTool = registerDriveTool(apiClient);
-  server.registerTool(driveTool.name, driveTool.config, driveTool.handler);
-
-  const usageTool = registerUsageTool(apiClient);
-  server.registerTool(usageTool.name, usageTool.config, usageTool.handler);
+  registerTool(server, registerWorkflowsTool(apiClient));
+  registerTool(server, registerAgentsTool(apiClient));
+  registerTool(server, registerAgentSessionsTool(apiClient));
+  registerTool(server, registerCollectionsTool(apiClient));
+  registerTool(server, registerTablesTool(apiClient));
+  registerTool(server, registerDocumentsTool(apiClient));
+  registerTool(server, registerSyncsTool(apiClient));
+  registerTool(server, registerTriggersTool(apiClient));
+  registerTool(server, registerCopilotsTool(apiClient));
+  registerTool(server, registerLogsTool(apiClient));
+  registerTool(server, registerIntegrationsTool(apiClient));
+  registerTool(server, registerDriveTool(apiClient));
+  registerTool(server, registerUsageTool(apiClient));
 
   registerResources(server, apiClient);
 
   return server;
+}
+
+function registerTool(
+  server: McpServer,
+  tool: {
+    name: string;
+    config: any;
+    handler: (input: any) => Promise<any>;
+  }
+) {
+  server.registerTool(tool.name, tool.config, async (input: any) => {
+    try {
+      return await tool.handler(input);
+    } catch (error) {
+      throw toMcpError(error);
+    }
+  });
+}
+
+function toMcpError(error: unknown) {
+  if (error instanceof McpError) {
+    return error;
+  }
+
+  if (error instanceof ScoutApiError) {
+    if (error.status === 401) {
+      return new McpError(ErrorCode.InvalidRequest, `Unauthorized: ${error.message}`, error.body);
+    }
+
+    if (error.status === 404) {
+      return new McpError(ErrorCode.InvalidRequest, `Resource not found: ${error.message}`, error.body);
+    }
+
+    if (error.status >= 500) {
+      return new McpError(ErrorCode.InternalError, `Scout API internal error: ${error.message}`, error.body);
+    }
+
+    return new McpError(ErrorCode.InvalidRequest, error.message, error.body);
+  }
+
+  if (error instanceof Error && error.name === "AbortError") {
+    return new McpError(ErrorCode.RequestTimeout, "Scout API request timed out");
+  }
+
+  if (error instanceof Error) {
+    return new McpError(ErrorCode.InternalError, error.message);
+  }
+
+  return new McpError(ErrorCode.InternalError, "Unknown server error");
 }

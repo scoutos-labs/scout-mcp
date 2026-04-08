@@ -30,7 +30,8 @@ type PaginatedList<T> = {
 export class ScoutApiClient {
   constructor(
     private readonly apiKey: string,
-    private readonly baseUrl = "https://api.scoutos.com"
+    private readonly baseUrl = "https://api.scoutos.com",
+    private readonly timeoutMs = 30_000
   ) {}
 
   async get<T>(path: string, params?: Record<string, QueryValue>) {
@@ -57,6 +58,8 @@ export class ScoutApiClient {
     const method = options.method ?? "GET";
     const url = this.buildUrl(path, options.params);
     const headers = new Headers(options.headers);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
     headers.set("authorization", `Bearer ${this.apiKey}`);
     headers.set("accept", "application/json");
@@ -68,25 +71,30 @@ export class ScoutApiClient {
       body = JSON.stringify(options.body);
     }
 
-    const response = await fetch(url, {
-      method,
-      headers,
-      body
-    });
+    try {
+      const response = await fetch(url, {
+        method,
+        headers,
+        body,
+        signal: controller.signal
+      });
 
-    if (!response.ok) {
-      throw await this.toError(response);
+      if (!response.ok) {
+        throw await this.toError(response);
+      }
+
+      if (options.rawResponse) {
+        return response;
+      }
+
+      if (response.status === 204) {
+        return undefined as T;
+      }
+
+      return (await response.json()) as T;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    if (options.rawResponse) {
-      return response;
-    }
-
-    if (response.status === 204) {
-      return undefined as T;
-    }
-
-    return (await response.json()) as T;
   }
 
   async listAll<T>(path: string, params: Record<string, QueryValue> = {}) {
