@@ -1,6 +1,6 @@
-# scout-mcp
+# scoutos-mcp
 
-`scout-mcp` is a local MCP (Model Context Protocol) server for the Scout OS API. Install it from npm, set `SCOUT_API_KEY`, run it on your machine, and connect your coding agent to `http://127.0.0.1:3000/mcp`.
+`scoutos-mcp` is a local MCP (Model Context Protocol) server for the Scout OS API. Install it from npm, set `SCOUT_API_KEY`, run it on your machine, and connect your coding agent to `http://127.0.0.1:3000/mcp`.
 
 ## Alpha Status
 
@@ -9,13 +9,13 @@ This package is currently an alpha release. Expect API coverage, tool actions, p
 ## Install
 
 ```bash
-npm install -g scout-mcp
+npm install -g scoutos-mcp
 ```
 
 Or run without a global install:
 
 ```bash
-npx scout-mcp
+npx scoutos-mcp
 ```
 
 ## Quick Start
@@ -29,7 +29,7 @@ export SCOUT_API_KEY=your_api_key_here
 2. Start the local MCP server:
 
 ```bash
-scout-mcp
+scoutos-mcp
 ```
 
 3. Point your MCP client or coding agent at:
@@ -47,19 +47,19 @@ curl http://127.0.0.1:3000/health
 ## CLI
 
 ```bash
-scout-mcp --help
+scoutos-mcp --help
 ```
 
 ```text
 Usage:
-  scout-mcp [--port <number>] [--host <host>]
+  scoutos-mcp [--port <number>] [--host <host>]
 ```
 
 Examples:
 
 ```bash
-scout-mcp --port 3333
-scout-mcp --host 127.0.0.1 --port 3333
+scoutos-mcp --port 3333
+scoutos-mcp --host 127.0.0.1 --port 3333
 ```
 
 Environment variables:
@@ -71,7 +71,7 @@ Environment variables:
 
 ## Using With Coding Agents
 
-Run `scout-mcp` locally, then configure your MCP-capable tool to use the server URL:
+Run `scoutos-mcp` locally, then configure your MCP-capable tool to use the server URL:
 
 ```text
 http://127.0.0.1:3000/mcp

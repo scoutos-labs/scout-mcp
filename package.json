@@ -1,11 +1,11 @@
 {
-  "name": "scout-mcp",
+  "name": "scoutos-mcp",
   "version": "0.1.0",
   "description": "Local MCP server for the Scout OS API",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "scout-mcp": "./dist/cli.js"
+    "scoutos-mcp": "./dist/cli.js"
   },
   "files": [
     "dist",

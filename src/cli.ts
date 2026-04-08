@@ -3,10 +3,10 @@
 import { startServer } from "./index.js";
 
 function printHelp() {
-  console.log(`scout-mcp
+  console.log(`scoutos-mcp
 
 Usage:
-  scout-mcp [--port <number>] [--host <host>]
+  scoutos-mcp [--port <number>] [--host <host>]
 
 Environment:
   SCOUT_API_KEY              Required Scout API key
