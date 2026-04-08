@@ -1,6 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-export function createMcpServer() {
+import { ScoutApiClient } from "./api-client.js";
+import { registerWorkflowsTool } from "./tools/workflows.js";
+
+export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT_API_KEY ?? "")) {
   const server = new McpServer(
     {
       name: "scout-os-mcp-server",
@@ -43,6 +46,9 @@ export function createMcpServer() {
       })
     )
     .disable();
+
+  const workflowsTool = registerWorkflowsTool(apiClient);
+  server.registerTool(workflowsTool.name, workflowsTool.config, workflowsTool.handler);
 
   return server;
 }
