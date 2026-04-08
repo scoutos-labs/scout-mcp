@@ -1,6 +1,83 @@
-# Scout OS MCP Server
+# scout-mcp
 
-An MCP (Model Context Protocol) server for the Scout OS API, enabling AI applications to interact with Scout workflows, agents, collections, and more.
+`scout-mcp` is a local MCP (Model Context Protocol) server for the Scout OS API. Install it from npm, set `SCOUT_API_KEY`, run it on your machine, and connect your coding agent to `http://127.0.0.1:3000/mcp`.
+
+## Install
+
+```bash
+npm install -g scout-mcp
+```
+
+Or run without a global install:
+
+```bash
+npx scout-mcp
+```
+
+## Quick Start
+
+1. Set your Scout API key:
+
+```bash
+export SCOUT_API_KEY=your_api_key_here
+```
+
+2. Start the local MCP server:
+
+```bash
+scout-mcp
+```
+
+3. Point your MCP client or coding agent at:
+
+```text
+http://127.0.0.1:3000/mcp
+```
+
+4. Check health locally:
+
+```bash
+curl http://127.0.0.1:3000/health
+```
+
+## CLI
+
+```bash
+scout-mcp --help
+```
+
+```text
+Usage:
+  scout-mcp [--port <number>] [--host <host>]
+```
+
+Examples:
+
+```bash
+scout-mcp --port 3333
+scout-mcp --host 127.0.0.1 --port 3333
+```
+
+Environment variables:
+
+- `SCOUT_API_KEY`: required Scout API key
+- `PORT`: optional port override, defaults to `3000`
+- `HOST`: optional host override, defaults to `127.0.0.1`
+- `MCP_SERVER_BEARER_TOKEN`: optional bearer token to require on `/mcp`
+
+## Using With Coding Agents
+
+Run `scout-mcp` locally, then configure your MCP-capable tool to use the server URL:
+
+```text
+http://127.0.0.1:3000/mcp
+```
+
+If your client supports custom headers and you set `MCP_SERVER_BEARER_TOKEN`, include:
+
+```text
+Authorization: Bearer <your-token>
+```
 
 ## Overview
 
@@ -69,21 +146,13 @@ src/
     └── index.ts           # Resource definitions
 ```
 
-## Setup
+## Development Setup
 
 ```bash
 bun install
 ```
 
-## Configuration
-
-Set your Scout API key as an environment variable:
-
-```bash
-export SCOUT_API_KEY=your_api_key_here
-```
-
-## Running
+## Local Development
 
 ```bash
 bun run dev
@@ -99,6 +168,12 @@ bun test
 
 ```bash
 bun run build
+```
+
+## Package Check
+
+```bash
+npm pack --dry-run
 ```
 
 ## Docker

@@ -87,11 +87,14 @@ export function createApp(): Express {
   return app;
 }
 
-export function startServer(port = Number(process.env.PORT ?? 3000)) {
+export function startServer(
+  port = Number(process.env.PORT ?? 3000),
+  host = process.env.HOST ?? "127.0.0.1"
+) {
   const app = createApp();
 
-  return app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+  return app.listen(port, host, () => {
+    console.log(`Scout MCP server listening at http://${host}:${port}/mcp`);
   });
 }
 
