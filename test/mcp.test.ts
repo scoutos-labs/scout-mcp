@@ -96,7 +96,9 @@ describe("MCP server", () => {
 
     await client.connect(transport);
 
-    await expect(client.listResources()).resolves.toMatchObject({ resources: [] });
+    const result = await client.listResources();
+
+    expect(result.resources.some((resource) => resource.uri === "scout://workflows")).toBe(true);
 
     await client.close();
   });

@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { ScoutApiClient } from "./api-client.js";
+import { registerResources } from "./resources/index.js";
 import { registerAgentsTool, registerAgentSessionsTool } from "./tools/agents.js";
 import { registerCollectionsTool } from "./tools/collections.js";
 import { registerCopilotsTool } from "./tools/copilots.js";
@@ -96,6 +97,8 @@ export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT
 
   const usageTool = registerUsageTool(apiClient);
   server.registerTool(usageTool.name, usageTool.config, usageTool.handler);
+
+  registerResources(server, apiClient);
 
   return server;
 }
