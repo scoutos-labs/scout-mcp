@@ -3,10 +3,15 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ScoutApiClient } from "./api-client.js";
 import { registerAgentsTool, registerAgentSessionsTool } from "./tools/agents.js";
 import { registerCollectionsTool } from "./tools/collections.js";
+import { registerCopilotsTool } from "./tools/copilots.js";
+import { registerDriveTool } from "./tools/drive.js";
 import { registerDocumentsTool } from "./tools/documents.js";
+import { registerIntegrationsTool } from "./tools/integrations.js";
+import { registerLogsTool } from "./tools/logs.js";
 import { registerSyncsTool } from "./tools/syncs.js";
 import { registerTriggersTool } from "./tools/triggers.js";
 import { registerTablesTool } from "./tools/tables.js";
+import { registerUsageTool } from "./tools/usage.js";
 import { registerWorkflowsTool } from "./tools/workflows.js";
 
 export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT_API_KEY ?? "")) {
@@ -76,6 +81,21 @@ export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT
 
   const triggersTool = registerTriggersTool(apiClient);
   server.registerTool(triggersTool.name, triggersTool.config, triggersTool.handler);
+
+  const copilotsTool = registerCopilotsTool(apiClient);
+  server.registerTool(copilotsTool.name, copilotsTool.config, copilotsTool.handler);
+
+  const logsTool = registerLogsTool(apiClient);
+  server.registerTool(logsTool.name, logsTool.config, logsTool.handler);
+
+  const integrationsTool = registerIntegrationsTool(apiClient);
+  server.registerTool(integrationsTool.name, integrationsTool.config, integrationsTool.handler);
+
+  const driveTool = registerDriveTool(apiClient);
+  server.registerTool(driveTool.name, driveTool.config, driveTool.handler);
+
+  const usageTool = registerUsageTool(apiClient);
+  server.registerTool(usageTool.name, usageTool.config, usageTool.handler);
 
   return server;
 }
