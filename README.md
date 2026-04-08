@@ -2,6 +2,10 @@
 
 `scout-mcp` is a local MCP (Model Context Protocol) server for the Scout OS API. Install it from npm, set `SCOUT_API_KEY`, run it on your machine, and connect your coding agent to `http://127.0.0.1:3000/mcp`.
 
+## Alpha Status
+
+This package is currently an alpha release. Expect API coverage, tool actions, packaging details, and client integration guidance to keep evolving before a stable `1.0` release.
+
 ## Install
 
 ```bash
