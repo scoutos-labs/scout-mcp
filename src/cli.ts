@@ -10,14 +10,14 @@ Usage:
 
 Environment:
   SCOUT_API_KEY              Required Scout API key
-  PORT                       Optional port override (default: 3000)
+  PORT                       Optional port override (default: 9987)
   HOST                       Optional host override (default: 127.0.0.1)
   MCP_SERVER_BEARER_TOKEN    Optional bearer token for protecting /mcp
 `);
 }
 
 function parseArgs(args: string[]) {
-  let port = Number(process.env.PORT ?? 3000);
+  let port = Number(process.env.PORT ?? 9987);
   let host = process.env.HOST ?? "127.0.0.1";
   let help = false;
 

@@ -1,6 +1,6 @@
 # scoutos-mcp
 
-`scoutos-mcp` is a local MCP (Model Context Protocol) server for the Scout OS API. Install it from npm, set `SCOUT_API_KEY`, run it on your machine, and connect your coding agent to `http://127.0.0.1:3000/mcp`.
+`scoutos-mcp` is a local MCP (Model Context Protocol) server for the Scout OS API. Install it from npm, set `SCOUT_API_KEY`, run it on your machine, and connect your coding agent to `http://127.0.0.1:9987/mcp`.
 
 ## Alpha Status
 
@@ -35,13 +35,13 @@ scoutos-mcp
 3. Point your MCP client or coding agent at:
 
 ```text
-http://127.0.0.1:3000/mcp
+http://127.0.0.1:9987/mcp
 ```
 
 4. Check health locally:
 
 ```bash
-curl http://127.0.0.1:3000/health
+curl http://127.0.0.1:9987/health
 ```
 
 ## CLI
@@ -65,7 +65,7 @@ scoutos-mcp --host 127.0.0.1 --port 3333
 Environment variables:
 
 - `SCOUT_API_KEY`: required Scout API key
-- `PORT`: optional port override, defaults to `3000`
+- `PORT`: optional port override, defaults to `9987`
 - `HOST`: optional host override, defaults to `127.0.0.1`
 - `MCP_SERVER_BEARER_TOKEN`: optional bearer token to require on `/mcp`
 
@@ -74,7 +74,7 @@ Environment variables:
 Run `scoutos-mcp` locally, then configure your MCP-capable tool to use the server URL:
 
 ```text
-http://127.0.0.1:3000/mcp
+http://127.0.0.1:9987/mcp
 ```
 
 If your client supports custom headers and you set `MCP_SERVER_BEARER_TOKEN`, include:
@@ -184,13 +184,13 @@ npm pack --dry-run
 
 ```bash
 docker build -t scout-os-mcp-server .
-docker run -p 3000:3000 -e SCOUT_API_KEY=your_api_key_here scout-os-mcp-server
+docker run -p 9987:9987 -e SCOUT_API_KEY=your_api_key_here scout-os-mcp-server
 ```
 
 Health check:
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:9987/health
 ```
 
 ## Deployment (Scout Live)

@@ -88,7 +88,7 @@ export function createApp(): Express {
 }
 
 export function startServer(
-  port = Number(process.env.PORT ?? 3000),
+  port = Number(process.env.PORT ?? 9987),
   host = process.env.HOST ?? "127.0.0.1"
 ) {
   const app = createApp();
