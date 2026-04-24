@@ -11,10 +11,11 @@ describeIfDocker("deployment packaging", () => {
   const imageTag = `scout-mcp-test:${randomUUID()}`;
   const containerName = `scout-mcp-${randomUUID()}`;
   const hostPort = 38080;
+  const containerPort = 9987;
 
   beforeAll(() => {
     const build = spawnSync("docker", ["build", "-t", imageTag, "."], {
-      cwd: "/Users/rakis/code/mcp-server",
+      cwd: process.cwd(),
       encoding: "utf8"
     });
 
@@ -31,13 +32,13 @@ describeIfDocker("deployment packaging", () => {
         "--name",
         containerName,
         "-p",
-        `${hostPort}:3000`,
+        `${hostPort}:${containerPort}`,
         "-e",
         "SCOUT_API_KEY=test-api-key",
         imageTag
       ],
       {
-        cwd: "/Users/rakis/code/mcp-server",
+        cwd: process.cwd(),
         encoding: "utf8"
       }
     );
@@ -49,7 +50,7 @@ describeIfDocker("deployment packaging", () => {
 
   afterAll(() => {
     spawnSync("docker", ["rm", "-f", containerName], {
-      cwd: "/Users/rakis/code/mcp-server",
+      cwd: process.cwd(),
       encoding: "utf8"
     });
   });
