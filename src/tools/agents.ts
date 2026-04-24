@@ -1,11 +1,21 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_AGENTS_DESCRIPTION,
+  SCOUT_AGENT_SESSIONS_DESCRIPTION,
+  AGENTS_ACTION_DESCRIPTION,
+  AGENT_SESSIONS_ACTION_DESCRIPTION,
+  AGENT_ID_DESCRIPTION,
+  SESSION_ID_DESCRIPTION,
+  AGENTS_DATA_DESCRIPTION,
+  AGENT_SESSIONS_DATA_DESCRIPTION,
+} from "../descriptions.js";
 
 const agentsToolInputSchema = {
-  action: z.enum(["list", "interact", "interact_sync", "upsert"]),
-  agent_id: z.string().optional(),
-  data: z.unknown().optional()
+  action: z.enum(["list", "interact", "interact_sync", "upsert"]).describe(AGENTS_ACTION_DESCRIPTION),
+  agent_id: z.string().optional().describe(AGENT_ID_DESCRIPTION),
+  data: z.unknown().optional().describe(AGENTS_DATA_DESCRIPTION)
 };
 
 const agentsValidationSchema = z
@@ -31,10 +41,10 @@ const agentsValidationSchema = z
   });
 
 const agentSessionToolInputSchema = {
-  action: z.enum(["interact_with_session"]),
-  agent_id: z.string().optional(),
-  session_id: z.string().optional(),
-  data: z.unknown().optional()
+  action: z.enum(["interact_with_session"]).describe(AGENT_SESSIONS_ACTION_DESCRIPTION),
+  agent_id: z.string().optional().describe(AGENT_ID_DESCRIPTION),
+  session_id: z.string().optional().describe(SESSION_ID_DESCRIPTION),
+  data: z.unknown().optional().describe(AGENT_SESSIONS_DATA_DESCRIPTION)
 };
 
 const agentSessionValidationSchema = z
@@ -108,7 +118,7 @@ export function registerAgentsTool(client: ScoutApiClient) {
   return {
     name: "scout_agents",
     config: {
-      description: "Manage Scout agents",
+      description: SCOUT_AGENTS_DESCRIPTION,
       inputSchema: agentsToolInputSchema
     },
     handler: async (rawInput: AgentsInput) => {
@@ -139,7 +149,7 @@ export function registerAgentSessionsTool(client: ScoutApiClient) {
   return {
     name: "scout_agent_sessions",
     config: {
-      description: "Interact with Scout agents using sessions",
+      description: SCOUT_AGENT_SESSIONS_DESCRIPTION,
       inputSchema: agentSessionToolInputSchema
     },
     handler: async (rawInput: AgentSessionInput) => {

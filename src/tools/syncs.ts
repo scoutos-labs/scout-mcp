@@ -1,11 +1,17 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_SYNCS_DESCRIPTION,
+  SYNCS_ACTION_DESCRIPTION,
+  SYNC_ID_DESCRIPTION,
+  SYNCS_DATA_DESCRIPTION,
+} from "../descriptions.js";
 
 const syncsToolInputSchema = {
-  action: z.enum(["list", "get", "create", "update", "delete", "execute", "list_sources"]),
-  sync_id: z.string().optional(),
-  data: z.unknown().optional()
+  action: z.enum(["list", "get", "create", "update", "delete", "execute", "list_sources"]).describe(SYNCS_ACTION_DESCRIPTION),
+  sync_id: z.string().optional().describe(SYNC_ID_DESCRIPTION),
+  data: z.unknown().optional().describe(SYNCS_DATA_DESCRIPTION)
 };
 
 const syncsValidationSchema = z.object({ ...syncsToolInputSchema }).superRefine((input, context) => {
@@ -28,7 +34,7 @@ export function registerSyncsTool(client: ScoutApiClient) {
   return {
     name: "scout_syncs",
     config: {
-      description: "Manage Scout syncs",
+      description: SCOUT_SYNCS_DESCRIPTION,
       inputSchema: syncsToolInputSchema
     },
     handler: async (rawInput: SyncsInput) => {

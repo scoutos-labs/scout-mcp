@@ -1,11 +1,17 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_DRIVE_DESCRIPTION,
+  DRIVE_ACTION_DESCRIPTION,
+  FILE_ID_DESCRIPTION,
+  DRIVE_UPLOAD_DATA_DESCRIPTION,
+} from "../descriptions.js";
 
 const driveToolInputSchema = {
-  action: z.enum(["upload", "download"]),
-  file_id: z.string().optional(),
-  data: z.unknown().optional()
+  action: z.enum(["upload", "download"]).describe(DRIVE_ACTION_DESCRIPTION),
+  file_id: z.string().optional().describe(FILE_ID_DESCRIPTION),
+  data: z.unknown().optional().describe(DRIVE_UPLOAD_DATA_DESCRIPTION)
 };
 
 const driveValidationSchema = z.object({ ...driveToolInputSchema }).superRefine((input, context) => {
@@ -27,7 +33,10 @@ function toToolResult(data: unknown) {
 export function registerDriveTool(client: ScoutApiClient) {
   return {
     name: "scout_drive",
-    config: { description: "Upload and download Scout drive files", inputSchema: driveToolInputSchema },
+    config: {
+      description: SCOUT_DRIVE_DESCRIPTION,
+      inputSchema: driveToolInputSchema
+    },
     handler: async (rawInput: DriveInput) => {
       const input = driveValidationSchema.parse(rawInput);
 

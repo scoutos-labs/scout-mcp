@@ -1,10 +1,15 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_INTEGRATIONS_DESCRIPTION,
+  INTEGRATIONS_ACTION_DESCRIPTION,
+  INTEGRATION_ID_DESCRIPTION,
+} from "../descriptions.js";
 
 const integrationsToolInputSchema = {
-  action: z.enum(["list", "list_channels", "delete_integration"]),
-  integration_id: z.string().optional()
+  action: z.enum(["list", "list_channels", "delete_integration"]).describe(INTEGRATIONS_ACTION_DESCRIPTION),
+  integration_id: z.string().optional().describe(INTEGRATION_ID_DESCRIPTION)
 };
 
 const integrationsValidationSchema = z.object({ ...integrationsToolInputSchema }).superRefine((input, context) => {
@@ -22,7 +27,10 @@ function toToolResult(data: unknown) {
 export function registerIntegrationsTool(client: ScoutApiClient) {
   return {
     name: "scout_integrations",
-    config: { description: "Manage Scout integrations", inputSchema: integrationsToolInputSchema },
+    config: {
+      description: SCOUT_INTEGRATIONS_DESCRIPTION,
+      inputSchema: integrationsToolInputSchema
+    },
     handler: async (rawInput: IntegrationsInput) => {
       const input = integrationsValidationSchema.parse(rawInput);
 

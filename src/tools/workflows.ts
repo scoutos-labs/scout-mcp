@@ -1,12 +1,19 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_WORKFLOWS_DESCRIPTION,
+  WORKFLOWS_ACTION_DESCRIPTION,
+  WORKFLOW_ID_DESCRIPTION,
+  WORKFLOWS_DATA_DESCRIPTION,
+  WORKFLOWS_PARAMS_DESCRIPTION,
+} from "../descriptions.js";
 
 const workflowsToolInputSchema = {
-  action: z.enum(["list", "get", "create", "run", "run_with_config"]),
-  workflow_id: z.string().optional(),
-  params: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
-  data: z.unknown().optional()
+  action: z.enum(["list", "get", "create", "run", "run_with_config"]).describe(WORKFLOWS_ACTION_DESCRIPTION),
+  workflow_id: z.string().optional().describe(WORKFLOW_ID_DESCRIPTION),
+  params: z.record(z.union([z.string(), z.number(), z.boolean()])).optional().describe(WORKFLOWS_PARAMS_DESCRIPTION),
+  data: z.unknown().optional().describe(WORKFLOWS_DATA_DESCRIPTION)
 };
 
 const workflowsValidationSchema = z
@@ -48,7 +55,7 @@ export function registerWorkflowsTool(client: ScoutApiClient) {
   return {
     name: "scout_workflows",
     config: {
-      description: "Manage Scout workflows",
+      description: SCOUT_WORKFLOWS_DESCRIPTION,
       inputSchema: workflowsToolInputSchema
     },
     handler: async (rawInput: WorkflowsInput) => {

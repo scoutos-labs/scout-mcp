@@ -1,12 +1,19 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_COLLECTIONS_DESCRIPTION,
+  COLLECTIONS_ACTION_DESCRIPTION,
+  COLLECTION_ID_DESCRIPTION,
+  VIEW_ID_DESCRIPTION,
+  COLLECTIONS_DATA_DESCRIPTION,
+} from "../descriptions.js";
 
 const collectionsToolInputSchema = {
-  action: z.enum(["list", "get", "create", "update", "delete", "list_views", "create_view", "update_view", "delete_view"]),
-  collection_id: z.string().optional(),
-  view_id: z.string().optional(),
-  data: z.unknown().optional()
+  action: z.enum(["list", "get", "create", "update", "delete", "list_views", "create_view", "update_view", "delete_view"]).describe(COLLECTIONS_ACTION_DESCRIPTION),
+  collection_id: z.string().optional().describe(COLLECTION_ID_DESCRIPTION),
+  view_id: z.string().optional().describe(VIEW_ID_DESCRIPTION),
+  data: z.unknown().optional().describe(COLLECTIONS_DATA_DESCRIPTION)
 };
 
 const collectionsValidationSchema = z.object({ ...collectionsToolInputSchema }).superRefine((input, context) => {
@@ -33,7 +40,7 @@ export function registerCollectionsTool(client: ScoutApiClient) {
   return {
     name: "scout_collections",
     config: {
-      description: "Manage Scout collections and views",
+      description: SCOUT_COLLECTIONS_DESCRIPTION,
       inputSchema: collectionsToolInputSchema
     },
     handler: async (rawInput: CollectionsInput) => {

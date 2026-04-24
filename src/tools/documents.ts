@@ -1,14 +1,23 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_DOCUMENTS_DESCRIPTION,
+  DOCUMENTS_ACTION_DESCRIPTION,
+  COLLECTION_ID_DESCRIPTION,
+  TABLE_ID_DESCRIPTION,
+  DOCUMENT_ID_DESCRIPTION,
+  DOCUMENTS_DATA_DESCRIPTION,
+  DOCUMENTS_PARAMS_DESCRIPTION,
+} from "../descriptions.js";
 
 const documentsToolInputSchema = {
-  action: z.enum(["list", "get", "create", "update", "delete", "update_batch", "delete_batch"]),
-  collection_id: z.string().optional(),
-  table_id: z.string().optional(),
-  document_id: z.string().optional(),
-  params: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
-  data: z.unknown().optional()
+  action: z.enum(["list", "get", "create", "update", "delete", "update_batch", "delete_batch"]).describe(DOCUMENTS_ACTION_DESCRIPTION),
+  collection_id: z.string().optional().describe(COLLECTION_ID_DESCRIPTION),
+  table_id: z.string().optional().describe(TABLE_ID_DESCRIPTION),
+  document_id: z.string().optional().describe(DOCUMENT_ID_DESCRIPTION),
+  params: z.record(z.union([z.string(), z.number(), z.boolean()])).optional().describe(DOCUMENTS_PARAMS_DESCRIPTION),
+  data: z.unknown().optional().describe(DOCUMENTS_DATA_DESCRIPTION)
 };
 
 const documentsValidationSchema = z.object({ ...documentsToolInputSchema }).superRefine((input, context) => {
@@ -39,7 +48,7 @@ export function registerDocumentsTool(client: ScoutApiClient) {
   return {
     name: "scout_documents",
     config: {
-      description: "Manage Scout documents",
+      description: SCOUT_DOCUMENTS_DESCRIPTION,
       inputSchema: documentsToolInputSchema
     },
     handler: async (rawInput: DocumentsInput) => {

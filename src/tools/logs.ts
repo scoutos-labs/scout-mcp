@@ -1,10 +1,15 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_LOGS_DESCRIPTION,
+  LOGS_ACTION_DESCRIPTION,
+  LOG_ID_DESCRIPTION,
+} from "../descriptions.js";
 
 const logsToolInputSchema = {
-  action: z.enum(["list", "get_details"]),
-  log_id: z.string().optional()
+  action: z.enum(["list", "get_details"]).describe(LOGS_ACTION_DESCRIPTION),
+  log_id: z.string().optional().describe(LOG_ID_DESCRIPTION)
 };
 
 const logsValidationSchema = z.object({ ...logsToolInputSchema }).superRefine((input, context) => {
@@ -22,7 +27,10 @@ function toToolResult(data: unknown) {
 export function registerLogsTool(client: ScoutApiClient) {
   return {
     name: "scout_logs",
-    config: { description: "Inspect Scout run logs", inputSchema: logsToolInputSchema },
+    config: {
+      description: SCOUT_LOGS_DESCRIPTION,
+      inputSchema: logsToolInputSchema
+    },
     handler: async (rawInput: LogsInput) => {
       const input = logsValidationSchema.parse(rawInput);
 

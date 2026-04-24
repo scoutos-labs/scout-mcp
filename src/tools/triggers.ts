@@ -1,11 +1,17 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_TRIGGERS_DESCRIPTION,
+  TRIGGERS_ACTION_DESCRIPTION,
+  TRIGGER_ID_DESCRIPTION,
+  TRIGGERS_DATA_DESCRIPTION,
+} from "../descriptions.js";
 
 const triggersToolInputSchema = {
-  action: z.enum(["list", "create", "update", "delete", "execute_slack", "execute_telegram", "execute_cron", "update_cron_auth_headers"]),
-  trigger_id: z.string().optional(),
-  data: z.unknown().optional()
+  action: z.enum(["list", "create", "update", "delete", "execute_slack", "execute_telegram", "execute_cron", "update_cron_auth_headers"]).describe(TRIGGERS_ACTION_DESCRIPTION),
+  trigger_id: z.string().optional().describe(TRIGGER_ID_DESCRIPTION),
+  data: z.unknown().optional().describe(TRIGGERS_DATA_DESCRIPTION)
 };
 
 const triggersValidationSchema = z.object({ ...triggersToolInputSchema }).superRefine((input, context) => {
@@ -28,7 +34,7 @@ export function registerTriggersTool(client: ScoutApiClient) {
   return {
     name: "scout_triggers",
     config: {
-      description: "Manage Scout triggers",
+      description: SCOUT_TRIGGERS_DESCRIPTION,
       inputSchema: triggersToolInputSchema
     },
     handler: async (rawInput: TriggersInput) => {
