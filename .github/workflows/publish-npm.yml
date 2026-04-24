@@ -1,0 +1,102 @@
+name: Publish to npm
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish-main
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run tests
+        run: bun run test
+
+      - name: Build package
+        run: bun run build
+
+      - name: Decide version bump
+        id: versioning
+        env:
+          PR_LABELS_JSON: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const version = pkg.version;
+          const labels = JSON.parse(process.env.PR_LABELS_JSON || '[]').map((label) => label.toLowerCase());
+
+          const hasLabel = (...candidates) => candidates.some((candidate) => labels.includes(candidate));
+
+          let bump = 'patch';
+          let preid = '';
+
+          if (version.includes('-')) {
+            bump = 'prerelease';
+            const prerelease = version.split('-')[1] || 'alpha.0';
+            preid = prerelease.split('.')[0] || 'alpha';
+          } else if (hasLabel('semver:major', 'release:major', 'major')) {
+            bump = 'major';
+          } else if (hasLabel('semver:minor', 'release:minor', 'minor')) {
+            bump = 'minor';
+          }
+
+          console.log(`bump=${bump}`);
+          if (preid) console.log(`preid=${preid}`);
+          NODE
+
+      - name: Bump package version
+        id: bump
+        run: |
+          if [ -n "${{ steps.versioning.outputs.preid }}" ]; then
+            new_version=$(npm version "${{ steps.versioning.outputs.bump }}" --preid "${{ steps.versioning.outputs.preid }}" --no-git-tag-version)
+          else
+            new_version=$(npm version "${{ steps.versioning.outputs.bump }}" --no-git-tag-version)
+          fi
+          echo "new_version=${new_version#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and tag version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore(release): ${{ steps.bump.outputs.new_version }} [skip ci]"
+          git tag "v${{ steps.bump.outputs.new_version }}"
+          git push origin main --follow-tags
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance
