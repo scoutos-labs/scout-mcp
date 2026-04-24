@@ -37,7 +37,7 @@ export function registerDriveTool(client: ScoutApiClient) {
       description: SCOUT_DRIVE_DESCRIPTION,
       inputSchema: driveToolInputSchema
     },
-    handler: async (rawInput: DriveInput) => {
+    handler: async (rawInput: DriveInput, _extra: any) => {
       const input = driveValidationSchema.parse(rawInput);
 
       switch (input.action) {

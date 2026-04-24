@@ -43,7 +43,7 @@ export function registerTablesTool(client: ScoutApiClient) {
       description: SCOUT_TABLES_DESCRIPTION,
       inputSchema: tablesToolInputSchema
     },
-    handler: async (rawInput: TablesInput) => {
+    handler: async (rawInput: TablesInput, _extra: any) => {
       const input = tablesValidationSchema.parse(rawInput);
       const basePath = `/v2/collections/${input.collection_id}/tables`;
 

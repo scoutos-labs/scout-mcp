@@ -1,12 +1,17 @@
 import { z } from "zod";
+import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+import type { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 
 import { ScoutApiClient } from "../api-client.js";
+import { sendProgress } from "../progress.js";
 import {
   SCOUT_SYNCS_DESCRIPTION,
   SYNCS_ACTION_DESCRIPTION,
   SYNC_ID_DESCRIPTION,
   SYNCS_DATA_DESCRIPTION,
 } from "../descriptions.js";
+
+type Extra = RequestHandlerExtra<ServerRequest, ServerNotification>;
 
 const syncsToolInputSchema = {
   action: z.enum(["list", "get", "create", "update", "delete", "execute", "list_sources"]).describe(SYNCS_ACTION_DESCRIPTION),
@@ -37,7 +42,7 @@ export function registerSyncsTool(client: ScoutApiClient) {
       description: SCOUT_SYNCS_DESCRIPTION,
       inputSchema: syncsToolInputSchema
     },
-    handler: async (rawInput: SyncsInput) => {
+    handler: async (rawInput: SyncsInput, extra: Extra) => {
       const input = syncsValidationSchema.parse(rawInput);
 
       switch (input.action) {
@@ -51,8 +56,13 @@ export function registerSyncsTool(client: ScoutApiClient) {
           return toToolResult(await client.patch(`/v2/syncs/${input.sync_id}`, input.data));
         case "delete":
           return toToolResult(await client.delete(`/v2/syncs/${input.sync_id}`));
-        case "execute":
-          return toToolResult(await client.post(`/v2/syncs/${input.sync_id}/execute`, input.data));
+        case "execute": {
+          await sendProgress(extra, 1, 3, "Starting sync execution");
+          const result = await client.post(`/v2/syncs/${input.sync_id}/execute`, input.data);
+          await sendProgress(extra, 2, 3, "Sync executing");
+          await sendProgress(extra, 3, 3, "Sync complete");
+          return toToolResult(result);
+        }
         case "list_sources":
           return toToolResult(await client.get("/v2/syncs/sources"));
       }
