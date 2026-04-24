@@ -1,11 +1,17 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_COPILOTS_DESCRIPTION,
+  COPILOTS_ACTION_DESCRIPTION,
+  COPILOT_ID_DESCRIPTION,
+  COPILOTS_DATA_DESCRIPTION,
+} from "../descriptions.js";
 
 const copilotsToolInputSchema = {
-  action: z.enum(["list", "get", "create", "update", "delete"]),
-  copilot_id: z.string().optional(),
-  data: z.unknown().optional()
+  action: z.enum(["list", "get", "create", "update", "delete"]).describe(COPILOTS_ACTION_DESCRIPTION),
+  copilot_id: z.string().optional().describe(COPILOT_ID_DESCRIPTION),
+  data: z.unknown().optional().describe(COPILOTS_DATA_DESCRIPTION)
 };
 
 const copilotsValidationSchema = z.object({ ...copilotsToolInputSchema }).superRefine((input, context) => {
@@ -27,7 +33,10 @@ function toToolResult(data: unknown) {
 export function registerCopilotsTool(client: ScoutApiClient) {
   return {
     name: "scout_copilots",
-    config: { description: "Manage Scout copilots", inputSchema: copilotsToolInputSchema },
+    config: {
+      description: SCOUT_COPILOTS_DESCRIPTION,
+      inputSchema: copilotsToolInputSchema
+    },
     handler: async (rawInput: CopilotsInput) => {
       const input = copilotsValidationSchema.parse(rawInput);
 

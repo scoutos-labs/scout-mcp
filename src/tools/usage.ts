@@ -1,9 +1,13 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_USAGE_DESCRIPTION,
+  USAGE_ACTION_DESCRIPTION,
+} from "../descriptions.js";
 
 const usageToolInputSchema = {
-  action: z.enum(["get"])
+  action: z.enum(["get"]).describe(USAGE_ACTION_DESCRIPTION)
 };
 
 type UsageInput = z.infer<z.ZodObject<typeof usageToolInputSchema>>;
@@ -15,7 +19,10 @@ function toToolResult(data: unknown) {
 export function registerUsageTool(client: ScoutApiClient) {
   return {
     name: "scout_usage",
-    config: { description: "Get Scout usage information", inputSchema: usageToolInputSchema },
+    config: {
+      description: SCOUT_USAGE_DESCRIPTION,
+      inputSchema: usageToolInputSchema
+    },
     handler: async (_rawInput: UsageInput) => toToolResult(await client.get("/v2/usage"))
   };
 }

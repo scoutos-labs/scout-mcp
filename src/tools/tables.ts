@@ -1,12 +1,19 @@
 import { z } from "zod";
 
 import { ScoutApiClient } from "../api-client.js";
+import {
+  SCOUT_TABLES_DESCRIPTION,
+  TABLES_ACTION_DESCRIPTION,
+  COLLECTION_ID_DESCRIPTION,
+  TABLE_ID_DESCRIPTION,
+  TABLES_DATA_DESCRIPTION,
+} from "../descriptions.js";
 
 const tablesToolInputSchema = {
-  action: z.enum(["list", "get", "create", "update", "delete", "get_schema", "sync"]),
-  collection_id: z.string().optional(),
-  table_id: z.string().optional(),
-  data: z.unknown().optional()
+  action: z.enum(["list", "get", "create", "update", "delete", "get_schema", "sync"]).describe(TABLES_ACTION_DESCRIPTION),
+  collection_id: z.string().optional().describe(COLLECTION_ID_DESCRIPTION),
+  table_id: z.string().optional().describe(TABLE_ID_DESCRIPTION),
+  data: z.unknown().optional().describe(TABLES_DATA_DESCRIPTION)
 };
 
 const tablesValidationSchema = z.object({ ...tablesToolInputSchema }).superRefine((input, context) => {
@@ -33,7 +40,7 @@ export function registerTablesTool(client: ScoutApiClient) {
   return {
     name: "scout_tables",
     config: {
-      description: "Manage Scout tables",
+      description: SCOUT_TABLES_DESCRIPTION,
       inputSchema: tablesToolInputSchema
     },
     handler: async (rawInput: TablesInput) => {
