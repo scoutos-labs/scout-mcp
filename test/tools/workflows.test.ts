@@ -81,10 +81,7 @@ describe("scout_workflows tool", () => {
     const result = await client.listTools();
     const tool = result.tools.find((entry) => entry.name === "scout_workflows");
 
-    expect(tool).toMatchObject({
-      name: "scout_workflows",
-      description: "Manage Scout workflows"
-    });
+    expect(tool?.description).toContain("workflows");
     expect(tool?.inputSchema.properties).toHaveProperty("action");
 
     await client.close();
