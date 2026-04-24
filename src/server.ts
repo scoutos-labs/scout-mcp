@@ -3,6 +3,13 @@ import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
 
 import { ScoutApiClient, ScoutApiError } from "./api-client.js";
 import { registerResources } from "./resources/index.js";
+import {
+  registerScoutExplorePrompt,
+  registerScoutRunWorkflowPrompt,
+  registerScoutDebugLogsPrompt,
+  registerScoutCreateAgentPrompt,
+  registerScoutSyncDataPrompt,
+} from "./prompts/index.js";
 import { registerAgentsTool, registerAgentSessionsTool } from "./tools/agents.js";
 import { registerCollectionsTool } from "./tools/collections.js";
 import { registerCopilotsTool } from "./tools/copilots.js";
@@ -25,7 +32,8 @@ export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT
     {
       capabilities: {
         tools: {},
-        resources: {}
+        resources: {},
+        prompts: {}
       }
     }
   );
@@ -75,6 +83,13 @@ export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT
   registerTool(server, registerUsageTool(apiClient));
 
   registerResources(server, apiClient);
+
+  // Register prompts
+  registerScoutExplorePrompt(server, apiClient);
+  registerScoutRunWorkflowPrompt(server, apiClient);
+  registerScoutDebugLogsPrompt(server, apiClient);
+  registerScoutCreateAgentPrompt(server, apiClient);
+  registerScoutSyncDataPrompt(server, apiClient);
 
   return server;
 }
