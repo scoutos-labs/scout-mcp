@@ -43,7 +43,7 @@ export function registerCollectionsTool(client: ScoutApiClient) {
       description: SCOUT_COLLECTIONS_DESCRIPTION,
       inputSchema: collectionsToolInputSchema
     },
-    handler: async (rawInput: CollectionsInput) => {
+    handler: async (rawInput: CollectionsInput, _extra: any) => {
       const input = collectionsValidationSchema.parse(rawInput);
 
       switch (input.action) {

@@ -23,6 +23,6 @@ export function registerUsageTool(client: ScoutApiClient) {
       description: SCOUT_USAGE_DESCRIPTION,
       inputSchema: usageToolInputSchema
     },
-    handler: async (_rawInput: UsageInput) => toToolResult(await client.get("/v2/usage"))
+    handler: async (_rawInput: UsageInput, _extra: any) => toToolResult(await client.get("/v2/usage"))
   };
 }

@@ -1,6 +1,9 @@
 import { z } from "zod";
+import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+import type { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 
 import { ScoutApiClient } from "../api-client.js";
+import { sendProgress } from "../progress.js";
 import {
   SCOUT_WORKFLOWS_DESCRIPTION,
   WORKFLOWS_ACTION_DESCRIPTION,
@@ -8,6 +11,8 @@ import {
   WORKFLOWS_DATA_DESCRIPTION,
   WORKFLOWS_PARAMS_DESCRIPTION,
 } from "../descriptions.js";
+
+type Extra = RequestHandlerExtra<ServerRequest, ServerNotification>;
 
 const workflowsToolInputSchema = {
   action: z.enum(["list", "get", "create", "run", "run_with_config"]).describe(WORKFLOWS_ACTION_DESCRIPTION),
@@ -58,7 +63,7 @@ export function registerWorkflowsTool(client: ScoutApiClient) {
       description: SCOUT_WORKFLOWS_DESCRIPTION,
       inputSchema: workflowsToolInputSchema
     },
-    handler: async (rawInput: WorkflowsInput) => {
+    handler: async (rawInput: WorkflowsInput, extra: Extra) => {
       const input = workflowsValidationSchema.parse(rawInput);
 
       switch (input.action) {
@@ -68,12 +73,23 @@ export function registerWorkflowsTool(client: ScoutApiClient) {
           return toToolResult(await client.get(`/v2/workflows/${input.workflow_id}`));
         case "create":
           return toToolResult(await client.post("/v2/workflows", input.data));
-        case "run":
-          return toToolResult(await client.post(`/v2/workflows/${input.workflow_id}/run`, input.data));
-        case "run_with_config":
-          return toToolResult(
-            await client.post(`/v2/workflows/${input.workflow_id}/run-with-config`, input.data)
+        case "run": {
+          await sendProgress(extra, 1, 3, "Starting workflow execution");
+          const result = await client.post(`/v2/workflows/${input.workflow_id}/run`, input.data);
+          await sendProgress(extra, 2, 3, "Workflow running");
+          await sendProgress(extra, 3, 3, "Processing result");
+          return toToolResult(result);
+        }
+        case "run_with_config": {
+          await sendProgress(extra, 1, 3, "Starting workflow execution with config");
+          const result = await client.post(
+            `/v2/workflows/${input.workflow_id}/run-with-config`,
+            input.data
           );
+          await sendProgress(extra, 2, 3, "Workflow running");
+          await sendProgress(extra, 3, 3, "Processing result");
+          return toToolResult(result);
+        }
       }
     }
   };

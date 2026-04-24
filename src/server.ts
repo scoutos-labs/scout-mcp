@@ -1,5 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
 import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
+import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+import type { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 
 import { ScoutApiClient, ScoutApiError } from "./api-client.js";
 import { registerResources } from "./resources/index.js";
@@ -23,6 +26,8 @@ import { registerTablesTool } from "./tools/tables.js";
 import { registerUsageTool } from "./tools/usage.js";
 import { registerWorkflowsTool } from "./tools/workflows.js";
 
+type Extra = RequestHandlerExtra<ServerRequest, ServerNotification>;
+
 export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT_API_KEY ?? "")) {
   const server = new McpServer(
     {
@@ -44,9 +49,10 @@ export function createMcpServer(apiClient = new ScoutApiClient(process.env.SCOUT
     .registerTool(
       "_placeholder",
       {
-        description: "Internal placeholder"
+        description: "Internal placeholder",
+        inputSchema: { _placeholder: z.string().optional() }
       },
-      async () => ({ content: [] })
+      async (_input: any) => ({ content: [] })
     )
     .disable();
 
@@ -99,12 +105,12 @@ function registerTool(
   tool: {
     name: string;
     config: any;
-    handler: (input: any) => Promise<any>;
+    handler: (input: any, extra: any) => Promise<any>;
   }
 ) {
-  server.registerTool(tool.name, tool.config, async (input: any) => {
+  (server as any).registerTool(tool.name, tool.config, async (input: any, extra: any) => {
     try {
-      return await tool.handler(input);
+      return await tool.handler(input, extra);
     } catch (error) {
       throw toMcpError(error);
     }

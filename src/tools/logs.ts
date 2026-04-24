@@ -31,7 +31,7 @@ export function registerLogsTool(client: ScoutApiClient) {
       description: SCOUT_LOGS_DESCRIPTION,
       inputSchema: logsToolInputSchema
     },
-    handler: async (rawInput: LogsInput) => {
+    handler: async (rawInput: LogsInput, _extra: any) => {
       const input = logsValidationSchema.parse(rawInput);
 
       switch (input.action) {

@@ -37,7 +37,7 @@ export function registerTriggersTool(client: ScoutApiClient) {
       description: SCOUT_TRIGGERS_DESCRIPTION,
       inputSchema: triggersToolInputSchema
     },
-    handler: async (rawInput: TriggersInput) => {
+    handler: async (rawInput: TriggersInput, _extra: any) => {
       const input = triggersValidationSchema.parse(rawInput);
 
       switch (input.action) {

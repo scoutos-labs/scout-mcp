@@ -37,7 +37,7 @@ export function registerCopilotsTool(client: ScoutApiClient) {
       description: SCOUT_COPILOTS_DESCRIPTION,
       inputSchema: copilotsToolInputSchema
     },
-    handler: async (rawInput: CopilotsInput) => {
+    handler: async (rawInput: CopilotsInput, _extra: any) => {
       const input = copilotsValidationSchema.parse(rawInput);
 
       switch (input.action) {

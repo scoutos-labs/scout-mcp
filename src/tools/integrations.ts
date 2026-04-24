@@ -31,7 +31,7 @@ export function registerIntegrationsTool(client: ScoutApiClient) {
       description: SCOUT_INTEGRATIONS_DESCRIPTION,
       inputSchema: integrationsToolInputSchema
     },
-    handler: async (rawInput: IntegrationsInput) => {
+    handler: async (rawInput: IntegrationsInput, _extra: any) => {
       const input = integrationsValidationSchema.parse(rawInput);
 
       switch (input.action) {

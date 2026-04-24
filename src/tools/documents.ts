@@ -51,7 +51,7 @@ export function registerDocumentsTool(client: ScoutApiClient) {
       description: SCOUT_DOCUMENTS_DESCRIPTION,
       inputSchema: documentsToolInputSchema
     },
-    handler: async (rawInput: DocumentsInput) => {
+    handler: async (rawInput: DocumentsInput, _extra: any) => {
       const input = documentsValidationSchema.parse(rawInput);
       const basePath = `/v2/collections/${input.collection_id}/tables/${input.table_id}/documents`;
 

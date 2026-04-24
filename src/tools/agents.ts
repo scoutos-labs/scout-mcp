@@ -1,6 +1,9 @@
 import { z } from "zod";
+import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+import type { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 
 import { ScoutApiClient } from "../api-client.js";
+import { sendProgress } from "../progress.js";
 import {
   SCOUT_AGENTS_DESCRIPTION,
   SCOUT_AGENT_SESSIONS_DESCRIPTION,
@@ -79,6 +82,7 @@ const agentSessionValidationSchema = z
 
 type AgentsInput = z.infer<typeof agentsValidationSchema>;
 type AgentSessionInput = z.infer<typeof agentSessionValidationSchema>;
+type Extra = RequestHandlerExtra<ServerRequest, ServerNotification>;
 
 function toToolResult(data: unknown) {
   return {
@@ -121,23 +125,30 @@ export function registerAgentsTool(client: ScoutApiClient) {
       description: SCOUT_AGENTS_DESCRIPTION,
       inputSchema: agentsToolInputSchema
     },
-    handler: async (rawInput: AgentsInput) => {
+    handler: async (rawInput: AgentsInput, extra: Extra) => {
       const input = agentsValidationSchema.parse(rawInput);
 
       switch (input.action) {
         case "list":
           return toToolResult(await client.get("/agents"));
         case "interact": {
+          await sendProgress(extra, 1, 3, "Sending message to agent");
           const response = (await client.request(`/agents/${input.agent_id}/interact`, {
             method: "POST",
             body: input.data,
             rawResponse: true
           })) as Response;
-
-          return toToolResult(await readStreamText(response));
+          await sendProgress(extra, 2, 3, "Agent processing");
+          const text = await readStreamText(response);
+          await sendProgress(extra, 3, 3, "Reading response");
+          return toToolResult(text);
         }
-        case "interact_sync":
-          return toToolResult(await client.post(`/agents/${input.agent_id}/interact-sync`, input.data));
+        case "interact_sync": {
+          await sendProgress(extra, 1, 2, "Sending message to agent");
+          const result = await client.post(`/agents/${input.agent_id}/interact-sync`, input.data);
+          await sendProgress(extra, 2, 2, "Agent response received");
+          return toToolResult(result);
+        }
         case "upsert":
           return toToolResult(await client.post("/agents/upsert", input.data));
       }
