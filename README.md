@@ -118,6 +118,34 @@ The server groups the 79 Scout API endpoints into 13 domain tools with an `actio
 | `scout_drive` | `/drive` | upload, download |
 | `scout_usage` | `/v2/usage` | get |
 
+## Prompts
+
+The server provides built-in MCP prompts that guide agents through common Scout workflows:
+
+| Prompt | Purpose |
+|---|---|
+| `scout_explore` | Dynamic account overview — fetches real workflow, agent, and collection names |
+| `scout_run_workflow` | Step-by-step workflow execution: find, confirm, run, check logs |
+| `scout_debug_logs` | Troubleshooting guide for failed runs — pulls recent logs, surfaces errors |
+| `scout_create_agent` | Agent creation walkthrough with data structure guidance |
+| `scout_sync_data` | Data sync setup: list sources, create sync, execute |
+
+The `scout_explore` prompt is dynamic — it calls the Scout API at prompt time to inject your actual account data into the response.
+
+## Progress Notifications
+
+When an MCP client includes a `progressToken` in its request, the server sends `notifications/progress` during long-running operations. This lets the agent report status to the user instead of waiting in silence.
+
+Operations that support progress:
+
+| Tool | Actions | Steps |
+|---|---|---|
+| `scout_workflows` | `run`, `run_with_config` | Starting → Running → Processing result |
+| `scout_agents` | `interact`, `interact_sync` | Sending → Processing → Reading response |
+| `scout_syncs` | `execute` | Starting → Executing → Complete |
+
+If the client does not include a `progressToken`, progress notifications are silently skipped.
+
 ## Resources
 
 Read-only context resources exposed via MCP:
@@ -131,8 +159,10 @@ Read-only context resources exposed via MCP:
 ```
 src/
 ├── index.ts              # MCP server entry, Streamable HTTP transport
-├── server.ts             # Tool/resource definitions
+├── server.ts             # Tool/resource/prompt definitions
 ├── api-client.ts         # Scout API client wrapper
+├── descriptions.ts       # Rich tool and parameter descriptions
+├── progress.ts           # Progress notification helper
 ├── tools/
 │   ├── workflows.ts
 │   ├── agents.ts
@@ -146,6 +176,13 @@ src/
 │   ├── integrations.ts
 │   ├── drive.ts
 │   └── usage.ts
+├── prompts/
+│   ├── scout-explore.ts
+│   ├── scout-run-workflow.ts
+│   ├── scout-debug-logs.ts
+│   ├── scout-create-agent.ts
+│   ├── scout-sync-data.ts
+│   └── index.ts
 └── resources/
     └── index.ts           # Resource definitions
 ```
@@ -165,7 +202,7 @@ bun run dev
 ## Testing
 
 ```bash
-bun test
+vitest run
 ```
 
 ## Build
