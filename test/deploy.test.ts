@@ -5,7 +5,8 @@ import { spawnSync } from "node:child_process";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const dockerAvailable = spawnSync("docker", ["version"], { stdio: "ignore" }).status === 0;
-const describeIfDocker = dockerAvailable ? describe : describe.skip;
+const ciDeployTest = process.env.CI_DEPLOY_TEST === "1";
+const describeIfDocker = dockerAvailable && (process.env.CI ? ciDeployTest : true) ? describe : describe.skip;
 
 describeIfDocker("deployment packaging", () => {
   const imageTag = `scout-mcp-test:${randomUUID()}`;
